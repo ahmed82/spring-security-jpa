@@ -1,24 +1,48 @@
 package com.atro.securityJPA.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.assertj.core.util.Arrays;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.atro.securityJPA.models.User;
+
+
 public class AppUserDetails implements UserDetails {
 
 	private String username;
+	private String password;
+	private boolean active;
+	private List<GrantedAuthority> authorities;
 
 	public AppUserDetails() {
 	}
 
-	public AppUserDetails(String username) {
+	/*public AppUserDetails(String username) {
 		this.username = username;
+	}*/
+	
+	public AppUserDetails(User user) {
+		this.username = user.getUsername();
+		this.password = user.getPassword();
+		this.active = user.isActive();
+		this.authorities = Arrays.stream(user.getRoles().split(","))
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
 	}
+	
+/*	public List<String> getPermisssionList(){
+		if (authorities.length() > 0 ){
+			return Arrays.asList(authorities.split(","));
+		}
+		return new ArrayList<>();
+	}*/
+	
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -27,10 +51,15 @@ public class AppUserDetails implements UserDetails {
 		return authorities;
 		//return  Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
 	}
+	
+	
+	
+	
+	
 
 	@Override
 	public String getPassword() {
-		return "pass";
+		return password;
 	}
 
 	@Override
@@ -55,7 +84,7 @@ public class AppUserDetails implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return active;
 	}
 
 }
